@@ -6,29 +6,6 @@
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-#define HALO 1
-
-/// halo is *NOT* included
-#define LDM_LEN_1 8
-
-/// halo is included
-#define LDM_LEN_2 12
-
-/// halo is included
-#define LDM_LEN_3 3
-
-/// the top and bottom along N1 axis is *NOT* included
-static float LDM[64][LDM_LEN_1 * LDM_LEN_2* LDM_LEN_3];
-
-/// the first region do not need to include the TOP halo from other CPEs
-/// thus, the total number of TOP halo region is: 64-1=63
-static float LDM_TOP_HALO[63][LDM_LEN_2 * LDM_LEN_3];
-
-/// the last region do not need to include the BOTTOM halo from other CPEs
-/// thus, the total number of BOTTOM halo region is: 64-1=63
-static float LDM_BOTTOM_HALO[63][LDM_LEN_2 * LDM_LEN_3];
-
-
 int partition(int N, int m)
 {
   return (N + m - 1) / m; /// ceil(N/m);
@@ -66,18 +43,9 @@ int main(void)
   int N1 = 300; // fast axis
   int N2 = 200;
   int N3 = 100; // slow axis
-  
-  printf("Mesh size of one MPI rank (N1 x N2 x N3): (%d x %d x %d). N1 is the fastest axis\n", N1, N2, N3);
-
-  /// partition blocks
-  /// the partition block along the N1 axis should be determined by LDM_LEN_1
-  int m1 = ceilf(1.0 * N1 / LDM_LEN_1);  
-
-  printf("N1=%d, LDM_LEN_1=%d, m1=%d\n", N1, LDM_LEN_1, m1);
+  int m1 = 11;  // partition blocks
 
   int h = partition(N1, m1);    // num elements in each block along N1 axis
-
-  printf("num elements in each block along N1: h=%d\n", h);
 
   float *A = (float *)malloc(sizeof *A * N1 * N2 * N3);
   float *B = (float *)malloc(sizeof *A * N1 * N2 * N3);
